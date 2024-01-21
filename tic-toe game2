@@ -1,0 +1,58 @@
+from random import randrange
+
+def display_board(board):
+    for row in board:
+        print("+-------+-------+-------+")
+        print("|       |       |       |")
+        print(f"|   {row[0]}   |   {row[1]}   |   {row[2]}   |")
+        print("|       |       |       |")
+    print("+-------+-------+-------+")
+
+def enter_move(board):
+    move = int(input("Enter your move: "))
+    valid_moves = make_list_of_free_fields(board)
+    while move not in [cell[0] * 3 + cell[1] + 1 for cell in valid_moves]:
+        move = int(input("Invalid move, please enter again (1-9): "))
+    board[(move-1)//3][(move-1)%3] = 'O'
+
+def make_list_of_free_fields(board):
+    return [(i, j) for i in range(3) for j in range(3) if str(board[i][j]).isdigit()]
+
+def victory_for(board, sign):
+    for row in board:
+        if all(cell == sign for cell in row):
+            return True
+    for col in range(3):
+        if all(board[row][col] == sign for row in range(3)):
+            return True
+    if all(board[i][i] == sign for i in range(3)) or all(board[i][2-i] == sign for i in range(3)):
+        return True
+    return False
+
+def draw_move(board):
+    valid_moves = make_list_of_free_fields(board)
+    if valid_moves:
+        move = randrange(len(valid_moves))
+        board[valid_moves[move][0]][valid_moves[move][1]] = 'X'
+
+# Initialize the board
+board = [[1 + j + 3*i for j in range(3)] for i in range(3)]
+board[1][1] = 'X'  # The first move of the computer
+
+# Main game loop
+while True:
+    display_board(board)
+    if len(make_list_of_free_fields(board)) == 0 or victory_for(board, 'X'):
+        print("Computer won!")
+        break
+    enter_move(board)
+    if victory_for(board, 'O'):
+        print("You won!")
+        break
+    if len(make_list_of_free_fields(board)) == 0:
+        print("It's a tie!")
+        break
+    draw_move(board)
+
+# Display the final state of the board
+display_board(board)
